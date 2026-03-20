@@ -15,23 +15,43 @@ use constant API_SERVER_HOST => "api.dbcapi.me";
 use constant API_SERVER_FIRST_PORT => 8123;
 use constant API_SERVER_LAST_PORT => 8130;
 use constant API_CMD_TERMINATOR => "\r\n";
+use constant API_CONNECT_TIMEOUT => 10;
 
 
 sub connect
 {
     my $self = shift;
     if (!$self->{"sock"}) {
-        #printf("%d CONN\n", time);
-        my $host = gethostbyname(+API_SERVER_HOST) or die new DeathByCaptcha::Exception(
-            "Failed resolving API server host name"
-        );
-        $self->{"sock"} = IO::Socket::INET->new(
-            Proto => "tcp",
-            PeerAddr => inet_ntoa($host),
-            PeerPort => +API_SERVER_FIRST_PORT + int(rand(+API_SERVER_LAST_PORT - +API_SERVER_FIRST_PORT + 1)),
-        ) or die new DeathByCaptcha::Exception(
-            "Failed connecting to the API server \n"
-        );
+        my @ports = (+API_SERVER_FIRST_PORT .. +API_SERVER_LAST_PORT);
+        # Shuffle ports to spread retries and avoid sticky bad endpoint.
+        for (my $i = @ports - 1; $i > 0; $i--) {
+            my $j = int(rand($i + 1));
+            @ports[$i, $j] = @ports[$j, $i];
+        }
+
+        my $last_error = '';
+        foreach my $port (@ports) {
+            my $sock = IO::Socket::INET->new(
+                Proto    => 'tcp',
+                PeerAddr => +API_SERVER_HOST,
+                PeerPort => $port,
+                Timeout  => +API_CONNECT_TIMEOUT,
+            );
+
+            if ($sock) {
+                $sock->autoflush(1);
+                $self->{"sock"} = $sock;
+                last;
+            }
+
+            $last_error = $!;
+        }
+
+        if (!$self->{"sock"}) {
+            die new DeathByCaptcha::Exception(
+                "Failed connecting to the API server" . ($last_error ? ": $last_error" : "") . "\n"
+            );
+        }
     }
     return $self->{"sock"};
 }
@@ -49,7 +69,19 @@ sub close
 
 sub new
 {
-    my ($class, $username, $password) = @_;
+    my ($class, @args) = @_;
+
+    my ($username, $password);
+    if (@args == 1 && ref $args[0] eq 'HASH') {
+        $username = $args[0]->{username};
+        $password = $args[0]->{password};
+    } elsif (@args >= 2 && !ref $args[0] && $args[0] =~ /\A(?:username|password)\z/) {
+        my %named = @args;
+        $username = $named{username};
+        $password = $named{password};
+    } else {
+        ($username, $password) = @args;
+    }
 
     my $self = bless {
         sock     => 0,
@@ -79,7 +111,7 @@ sub _call
     #printf("%d SEND: %d %s\n", time, length($request), $request);
     $request .= +API_CMD_TERMINATOR;
 
-    my $attempts = 2;
+    my $attempts = 3;
     while (0 < $attempts) {
         $attempts--;
 
@@ -92,9 +124,19 @@ sub _call
                 }
         }
 
-        my $sock = $self->connect();
+        my $sock = eval { $self->connect() };
+        if (!defined $sock) {
+            if (0 == $attempts) {
+                die $@;
+            }
+            $self->close();
+            next;
+        }
 
-        print $sock $request;
+        if (!print $sock $request) {
+            $self->close();
+            next;
+        }
 
         my $buff = "";
         while ((0 == length($buff) or +API_CMD_TERMINATOR ne substr($buff, length($buff) - 2, 2)) and defined (my $s = <$sock>)) {
@@ -102,7 +144,11 @@ sub _call
         }
 
         if (0 < length($buff)) {
-            $buff = substr($buff, 0, length($buff) - 2);
+            if (substr($buff, -2) eq +API_CMD_TERMINATOR) {
+                $buff = substr($buff, 0, length($buff) - 2);
+            } elsif (substr($buff, -1) eq "\n") {
+                $buff = substr($buff, 0, length($buff) - 1);
+            }
             #printf("%d RECV: %d %s\n", time, length($buff), $buff);
             my $response;
             eval { $response = decode_json($buff); };
@@ -198,6 +244,35 @@ sub upload
         }
         return $captcha;
     }
+    return undef;
+}
+
+sub uploadToken
+{
+    my ($self, $type, $param_key, $params) = @_;
+
+    if (!defined $type || !defined $param_key || $param_key eq '' || ref($params) ne 'HASH') {
+        die DeathByCaptcha::Exception->new(
+            "Token upload requires type, param_key and params hashref\n"
+        );
+    }
+
+    my $captcha = $self->_call(
+        "upload",
+        (
+            type => int($type),
+            $param_key => encode_json($params),
+            swid => +DeathByCaptcha::Client::SOFTWARE_VENDOR_ID,
+        )
+    );
+
+    if (defined $captcha and 0 < ($captcha->{"captcha"} || 0)) {
+        if (defined $captcha->{"text"} and "" eq $captcha->{"text"}) {
+            $captcha->{"text"} = undef;
+        }
+        return $captcha;
+    }
+
     return undef;
 }
 

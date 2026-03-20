@@ -45,7 +45,7 @@ cpanm --installdeps .
 Or install modules manually:
 
 ```bash
-cpanm LWP::UserAgent HTTP::Request::Common HTTP::Status JSON IO::Socket MIME::Base64
+cpanm LWP::UserAgent LWP::Protocol::https HTTP::Request::Common HTTP::Status JSON IO::Socket MIME::Base64
 ```
 
 ## Project Conventions
@@ -99,8 +99,10 @@ The project includes integration test `t/05-integration.t`.
 
 What it verifies:
 
-- Reads credentials from `.env`
-- Authenticates against DBC API
+- Reads credentials from `.env` (`DBC_USERNAME`, `DBC_PASSWORD`)
+- Accepts `.env` values with or without surrounding quotes
+- Authenticates via HTTPS API
+- Requires Socket API authentication and connectivity
 - Checks balance is `>= 0`
 - Uploads `samples/test.jpg`
 - Polls for CAPTCHA solution
@@ -108,13 +110,18 @@ What it verifies:
 Requirements:
 
 - Valid DeathByCaptcha API credentials
-- Network connectivity to DBC API
+- Network connectivity to DBC API (including Socket ports `8123-8130`)
 
 Setup and run:
 
 ```bash
 cp .env.example .env
 # edit credentials in .env
+# supported formats:
+# DBC_USERNAME=user
+# DBC_PASSWORD=pass
+# DBC_USERNAME='user'
+# DBC_PASSWORD='pass'
 prove -l t/05-integration.t
 ```
 

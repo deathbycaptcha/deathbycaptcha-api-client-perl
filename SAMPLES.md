@@ -58,7 +58,7 @@ Prints account balance and solves a CAPTCHA image.
 Usage:
 
 ```bash
-perl samples/example.pl <username|authtoken> <password|token> <captcha_file>
+perl samples/example.pl <username|authtoken> <password|token> [captcha_file]
 ```
 
 ### `samples/recaptcha_v2_http.pl`

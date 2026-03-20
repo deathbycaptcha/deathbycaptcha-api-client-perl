@@ -4,9 +4,24 @@ use warnings;
 use lib '.';
 
 use Test::More;
+use JSON qw(decode_json);
 
 use DeathByCaptcha::Client;
 use DeathByCaptcha::SocketClient;
+
+my $ctor_named = DeathByCaptcha::SocketClient->new(
+    username => 'named-user',
+    password => 'named-pass',
+);
+is($ctor_named->{username}, 'named-user', 'constructor accepts named username');
+is($ctor_named->{password}, 'named-pass', 'constructor accepts named password');
+
+my $ctor_hashref = DeathByCaptcha::SocketClient->new({
+    username => 'hash-user',
+    password => 'hash-pass',
+});
+is($ctor_hashref->{username}, 'hash-user', 'constructor accepts hashref username');
+is($ctor_hashref->{password}, 'hash-pass', 'constructor accepts hashref password');
 
 {
     package Local::SocketClientMock;
@@ -76,6 +91,31 @@ ok(!$client->report(0), 'report returns false for invalid captcha id');
     is($call->{cmd}, 'upload', 'upload delegates to _call("upload")');
     ok(defined $call->{args}{captcha}, 'upload sends encoded captcha payload');
     is($call->{args}{swid}, DeathByCaptcha::Client::SOFTWARE_VENDOR_ID, 'upload sends software vendor id');
+}
+
+# uploadToken wraps _call payload and keeps token params as encoded JSON string
+{
+    $client = Local::SocketClientMock->new(
+        queue => [ { captcha => 333, text => '' } ],
+    );
+
+    my $token = $client->uploadToken(4, 'token_params', {
+        googlekey => 'site-key',
+        pageurl   => 'https://example.test/',
+    });
+
+    ok(defined $token, 'uploadToken returns captcha hash on success');
+    is($token->{captcha}, 333, 'uploadToken returns captcha id from response');
+    ok(!defined $token->{text}, 'uploadToken normalizes empty text to undef');
+
+    my $call = $client->calls->[0];
+    is($call->{cmd}, 'upload', 'uploadToken delegates to _call("upload")');
+    is($call->{args}{type}, 4, 'uploadToken sends token type');
+    is($call->{args}{swid}, DeathByCaptcha::Client::SOFTWARE_VENDOR_ID, 'uploadToken sends software vendor id');
+
+    my $decoded = decode_json($call->{args}{token_params});
+    is($decoded->{googlekey}, 'site-key', 'uploadToken sends googlekey in token_params');
+    is($decoded->{pageurl}, 'https://example.test/', 'uploadToken sends pageurl in token_params');
 }
 
 done_testing;
