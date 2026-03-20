@@ -10,7 +10,6 @@
 - [API Methods (Perl)](#api-methods-perl)
 - [Test Coverage](#test-coverage)
 - [Integration Testing](#integration-testing)
-- [Samples](#samples)
 - [Samples Guide](SAMPLES.md)
 
 ## Introduction
@@ -127,13 +126,3 @@ prove -l t/05-integration.t
 
 Integration tests do not run in GitLab CI.
 
-## Samples
-
-Detailed samples documentation is available in [SAMPLES.md](SAMPLES.md).
-
-It includes:
-
-- Script-by-script usage (`samples/get_balance.pl`, `samples/example.pl`)
-- Advanced token examples for reCAPTCHA v2/v3/Enterprise, Cloudflare Turnstile, and Amazon WAF
-- CLI examples for HTTP and Socket modes
-- Perl snippets for balance, decode, and report flows
