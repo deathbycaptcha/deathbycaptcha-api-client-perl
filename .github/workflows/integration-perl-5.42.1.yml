@@ -1,0 +1,66 @@
+name: Integration Tests (Perl 5.42.1)
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check integration secrets
+        id: secrets
+        run: |
+          if [ -z "${{ secrets.DBC_USERNAME }}" ] || [ -z "${{ secrets.DBC_PASSWORD }}" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "Integration secrets are not configured; integration test will be skipped."
+          else
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.secrets.outputs.available == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup Perl 5.42.1
+        if: steps.secrets.outputs.available == 'true'
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: "5.42"
+
+      - name: Ensure cpanm
+        if: steps.secrets.outputs.available == 'true'
+        run: |
+          if ! command -v cpanm >/dev/null 2>&1; then
+            cpan App::cpanminus
+          fi
+
+      - name: Validate integration secrets
+        if: steps.secrets.outputs.available == 'true'
+        run: |
+          if [ -z "${{ secrets.DBC_USERNAME }}" ] || [ -z "${{ secrets.DBC_PASSWORD }}" ]; then
+            echo "DBC_USERNAME and DBC_PASSWORD secrets are required."
+            exit 1
+          fi
+
+      - name: Prepare .env for integration test
+        if: steps.secrets.outputs.available == 'true'
+        run: |
+          printf '%s\n' '# DBC API credentials (HTTP or Socket)' > .env
+          printf '%s\n' "DBC_USERNAME=${{ secrets.DBC_USERNAME }}" >> .env
+          printf '%s\n' "DBC_PASSWORD=${{ secrets.DBC_PASSWORD }}" >> .env
+
+      - name: Install dependencies
+        if: steps.secrets.outputs.available == 'true'
+        run: cpanm --notest --installdeps .
+
+      - name: Run integration test
+        if: steps.secrets.outputs.available == 'true'
+        run: prove -l t/05-integration.t
+
+      - name: Integration skipped notice
+        if: steps.secrets.outputs.available != 'true'
+        run: echo "Integration test skipped because DBC_USERNAME/DBC_PASSWORD secrets are missing."

@@ -1,0 +1,31 @@
+name: Unit Tests (Perl 5.40.3)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Perl 5.40.3
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: "5.40"
+
+      - name: Ensure cpanm
+        run: |
+          if ! command -v cpanm >/dev/null 2>&1; then
+            cpan App::cpanminus
+          fi
+
+      - name: Install dependencies
+        run: cpanm --notest --installdeps .
+
+      - name: Run unit tests
+        run: prove -l t/0[0-4]-*.t

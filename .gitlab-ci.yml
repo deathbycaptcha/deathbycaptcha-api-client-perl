@@ -1,0 +1,35 @@
+stages:
+  - test
+
+perl-tests:
+  stage: test
+  image: "perl:${PERL_VERSION}"
+  parallel:
+    matrix:
+      - PERL_VERSION: "5.42.1"
+      - PERL_VERSION: "5.40.3"
+      - PERL_VERSION: "5.38.5"
+  variables:
+    PERL_MM_USE_DEFAULT: "1"
+    HARNESS_OPTIONS: "j4"
+  script:
+    - 'perl -v'
+    - |
+      if ! command -v cpanm >/dev/null 2>&1; then
+        cpan -T App::cpanminus
+      fi
+    - 'cpanm --notest Devel::Cover'
+    - 'cpanm --installdeps --notest .'
+    - 'rm -rf cover_db'
+    - 'echo "Running unit tests (excluding integration tests)"'
+    - 'HARNESS_PERL_SWITCHES=-MDevel::Cover prove -l t/0[0-4]-*.t'
+    - 'cover -summary | tee coverage-summary.txt'
+    - "TOTAL_COVERAGE=$(awk '/^Total/{print $NF}' coverage-summary.txt)"
+    - 'echo "Coverage total: ${TOTAL_COVERAGE}%"'
+  coverage: '/Coverage total:\s+([0-9]+\.[0-9]+)%/'
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - coverage-summary.txt
+      - cover_db/

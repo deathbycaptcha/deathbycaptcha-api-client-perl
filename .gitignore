@@ -1,0 +1,45 @@
+# Perl build artifacts
+blib/
+_build/
+Build
+Build.bat
+Makefile
+Makefile.old
+pm_to_blib
+
+# CPAN / metadata
+MYMETA.json
+MYMETA.yml
+META.json
+META.yml
+
+# Test / coverage outputs
+cover_db/
+cover.out
+coverage/
+*.tap
+nytprof.out
+nytprof/
+
+# Dependency managers / local environments
+local/
+cpanfile.snapshot
+carton.lock
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+*.swp
+.gitlab-ci-local/
+deathbycaptcha-agent-api-metadata/
+
+# Environment and credentials
+.env
+!.env.example
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
