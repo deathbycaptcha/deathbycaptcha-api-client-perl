@@ -11,6 +11,7 @@
 - [Test Coverage](#test-coverage)
 - [Integration Testing](#integration-testing)
 - [Samples](#samples)
+- [Samples Guide](SAMPLES.md)
 
 ## Introduction
 
@@ -121,7 +122,7 @@ Integration tests do not run in GitLab CI.
 
 ## Samples
 
-Detailed samples documentation is available in `SAMPLES.md`.
+Detailed samples documentation is available in [SAMPLES.md](SAMPLES.md).
 
 It includes:
 

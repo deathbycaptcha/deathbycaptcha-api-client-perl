@@ -87,6 +87,32 @@ sub decode
     return;
 }
 
+sub decodeToken
+{
+    my ($self, $type, $param_key, $params, $timeout) = @_;
+
+    my $deadline = time + ((defined $timeout and 0 < $timeout)
+        ? $timeout
+        : +DEFAULT_TIMEOUT);
+    my $idx = 0;
+    my $intvl;
+
+    if (defined(my $captcha = $self->uploadToken($type, $param_key, $params))) {
+        while ($deadline > time and not defined $captcha->{"text"}) {
+            ($intvl, $idx) = get_poll_interval($idx);
+            sleep $intvl;
+            $captcha = $self->getCaptcha($captcha->{"captcha"});
+            return if !defined $captcha;
+        }
+
+        if (defined $captcha->{"text"} && $captcha->{"text"} ne '') {
+            return $captcha;
+        }
+    }
+
+    return;
+}
+
 sub get_poll_interval
 {
         my ($idx) = @_;

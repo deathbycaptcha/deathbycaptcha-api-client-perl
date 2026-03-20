@@ -39,9 +39,10 @@ unless (-e $test_image) {
     exit;
 }
 
-plan tests => 4;
+plan tests => 9;
 
 use_ok('DeathByCaptcha::SocketClient');
+use_ok('DeathByCaptcha::HttpClient');
 
 # Test Socket client
 my $client = DeathByCaptcha::SocketClient->new(
@@ -55,15 +56,31 @@ my $user = eval { $client->getUser() };
 if ($@) {
     if ($@ =~ /credentials|access denied|invalid/i) {
         SKIP: {
-            skip("Invalid DBC credentials in .env - cannot run integration test", 2);
+            skip("Invalid DBC credentials in .env - cannot run integration test", 6);
         }
-        done_testing();
         exit 0;
     }
     BAIL_OUT("Failed to connect to DBC API: $@");
 }
 ok(defined $user, "Got user info from API");
 ok($user->{balance} >= 0, "User balance is non-negative: $user->{balance}");
+
+# Test HTTP(S) client only for balance retrieval.
+my $http_client = DeathByCaptcha::HttpClient->new(
+    $env{DBC_USERNAME},
+    $env{DBC_PASSWORD},
+);
+ok($http_client, "HTTP client created successfully");
+
+my $http_user = eval { $http_client->getUser() };
+if ($@) {
+    if ($@ =~ /credentials|access denied|invalid|forbidden/i) {
+        BAIL_OUT("HTTPS integration check failed due to credentials/auth: $@");
+    }
+    BAIL_OUT("HTTPS integration check failed: $@");
+}
+ok(defined $http_user, "Got user info from HTTPS API");
+ok($http_user->{balance} >= 0, "HTTPS user balance is non-negative: $http_user->{balance}");
 
 # Upload captcha image
 my $captcha_response = eval { $client->upload(captcha => $test_image) };
@@ -92,7 +109,6 @@ while (time - $start_time < $timeout) {
     
     $poll_count++;
     if ($captcha && $captcha->{is_correct}) {
-        pass("Captcha solved successfully after $poll_count polls");
         diag("Solution text: $captcha->{text}");
         last;
     }
