@@ -126,3 +126,7 @@ prove -l t/05-integration.t
 
 Integration tests do not run in GitLab CI.
 
+## Responsible Use
+
+See [Responsible Use Agreement](RESPONSIBLE_USE.md).
+
