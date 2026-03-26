@@ -176,13 +176,15 @@ SKIP: {
             . ' is_correct=' . ($socket_upload->{is_correct} // 'undef'));
 
         my $socket_image_result = $socket_upload;
-        if (!$socket_upload->{is_correct}) {
+        if (!defined $socket_upload->{text} || $socket_upload->{text} eq '') {
             $socket_image_result = poll_for_solution(
                 'Socket Image',
                 $socket_client,
                 $socket_upload->{captcha},
                 $token_timeout,
             );
+        } else {
+            diag('Socket image solved immediately');
         }
 
         ok(defined $socket_image_result && defined $socket_image_result->{text} && $socket_image_result->{text} ne '',
