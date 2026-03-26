@@ -190,6 +190,113 @@ ok(!defined $http->getCaptcha(0), 'getCaptcha returns undef for invalid id');
 ok(!$http->report(0), 'report returns false for invalid id');
 is(scalar @{$http->{useragent}->requests}, 0, 'invalid id paths do not call user agent');
 
+# uploadToken success via redirect -> getCaptcha
+{
+    no warnings 'redefine';
+
+    $http = DeathByCaptcha::HttpClient->new('user', 'pass');
+    $http->{useragent} = Local::MockUA->new(
+        Local::MockResponse->new(
+            code    => 303,
+            content => '',
+            headers => { Location => 'https://api.dbcapi.me/api/captcha/555' },
+        ),
+        Local::MockResponse->new(
+            code    => 200,
+            content => '{"captcha":555,"text":"token-abc","is_correct":true}',
+        ),
+    );
+
+    my $token = $http->uploadToken(4, 'token_params', {
+        googlekey => 'site-key',
+        pageurl   => 'https://example.test/',
+    });
+    is($token->{captcha}, 555, 'uploadToken follows redirect and returns fetched captcha');
+    is($token->{text}, 'token-abc', 'uploadToken returns text from redirected getCaptcha');
+
+    my $req = $http->{useragent}->requests->[0];
+    is($req->method, 'POST', 'uploadToken sends POST request');
+    like($req->uri->as_string, qr{/captcha$}, 'uploadToken targets /captcha endpoint');
+    like($req->content, qr/type=4/, 'uploadToken encodes type in body');
+    like($req->content, qr/token_params/, 'uploadToken encodes param_key in body');
+}
+
+# uploadToken: 200 OK path (no redirect)
+{
+    $http = DeathByCaptcha::HttpClient->new('user', 'pass');
+    $http->{useragent} = Local::MockUA->new(
+        Local::MockResponse->new(
+            code    => 200,
+            content => '{"captcha":777,"text":"","is_correct":false}',
+        ),
+    );
+
+    my $token = $http->uploadToken(4, 'token_params', { googlekey => 'k', pageurl => 'u' });
+    ok(defined $token, 'uploadToken returns captcha on 200 OK response');
+    is($token->{captcha}, 777, 'uploadToken returns correct captcha id on 200 OK');
+    ok(!defined $token->{text}, 'uploadToken normalizes empty text to undef on 200 OK');
+}
+
+# uploadToken error mappings
+for my $case (
+    [ 403, qr/Access forbidden, check your credentials/, 'forbidden' ],
+    [ 400, qr/Token CAPTCHA request was rejected/, 'bad request' ],
+    [ 501, qr/Token CAPTCHA type\/params are not implemented/, 'not implemented' ],
+    [ 503, qr/Token CAPTCHA request rejected due to service overload/, 'service unavailable' ],
+) {
+    my ($status, $regex, $label) = @$case;
+
+    $http = DeathByCaptcha::HttpClient->new('user', 'pass');
+    $http->{useragent} = Local::MockUA->new(
+        Local::MockResponse->new(code => $status, content => ''),
+    );
+
+    like(
+        exception_text(sub { $http->uploadToken(4, 'token_params', { googlekey => 'k', pageurl => 'u' }); }),
+        $regex,
+        "uploadToken throws expected error on $label",
+    );
+}
+
+# uploadToken validation: missing required params
+like(
+    exception_text(sub { $http->uploadToken(undef, 'token_params', {}); }),
+    qr/Token upload requires type/,
+    'uploadToken throws when type is undef',
+);
+like(
+    exception_text(sub { $http->uploadToken(4, '', { k => 'v' }); }),
+    qr/Token upload requires type/,
+    'uploadToken throws when param_key is empty',
+);
+like(
+    exception_text(sub { $http->uploadToken(4, 'token_params', 'not-a-hash'); }),
+    qr/Token upload requires type/,
+    'uploadToken throws when params is not a hashref',
+);
+
+# getStatus success
+$http = DeathByCaptcha::HttpClient->new('user', 'pass');
+$http->{useragent} = Local::MockUA->new(
+    Local::MockResponse->new(
+        code    => 200,
+        content => '{"is_service_overloaded":false}',
+    ),
+);
+my $status = $http->getStatus();
+ok(defined $status, 'getStatus returns parsed hash on 200 OK');
+ok(!$status->{is_service_overloaded}, 'getStatus returns is_service_overloaded flag');
+
+my $status_req = $http->{useragent}->requests->[0];
+is($status_req->method, 'GET', 'getStatus sends GET request');
+like($status_req->uri->as_string, qr{/status$}, 'getStatus targets /status endpoint');
+
+# getStatus non-200
+$http->{useragent} = Local::MockUA->new(
+    Local::MockResponse->new(code => 503, content => ''),
+);
+ok(!defined $http->getStatus(), 'getStatus returns undef on non-200 response');
+
 done_testing;
 
 sub exception_text {

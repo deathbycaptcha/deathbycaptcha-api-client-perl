@@ -10,7 +10,8 @@ our $VERSION = +CLIENT_VERSION;
 use constant API_VERSION => 'DBC/Perl v' . +CLIENT_VERSION;
 use constant SOFTWARE_VENDOR_ID => 0;
 
-use constant DEFAULT_TIMEOUT => 60;
+use constant DEFAULT_TIMEOUT       => 60;
+use constant DEFAULT_TOKEN_TIMEOUT => 120;
 use constant POLLS_INTERVAL => (1, 1, 2, 3, 2, 2, 3, 2, 2);
 use constant LEN_POLLS_INTVL => scalar(POLLS_INTERVAL);
 use constant DFLT_POLL_INTERVAL => 3;
@@ -37,6 +38,11 @@ sub connect
 sub close
 {
     return 1;
+}
+
+sub getStatus
+{
+    return undef;
 }
 
 sub getBalance
@@ -93,7 +99,7 @@ sub decodeToken
 
     my $deadline = time + ((defined $timeout and 0 < $timeout)
         ? $timeout
-        : +DEFAULT_TIMEOUT);
+        : +DEFAULT_TOKEN_TIMEOUT);
     my $idx = 0;
     my $intvl;
 

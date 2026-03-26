@@ -207,4 +207,19 @@ sub report
     return 0;
 }
 
+sub getStatus
+{
+    my ($self) = @_;
+
+    my $response = $self->{useragent}->request(HTTP::Request::Common::GET(
+        join('/', +API_SERVER_URL, 'status'),
+        Accept => +API_RESPONSE_TYPE,
+    ));
+
+    if (HTTP::Status::RC_OK == $response->code) {
+        return _decode_json_or_undef($response->content);
+    }
+    return undef;
+}
+
 1;

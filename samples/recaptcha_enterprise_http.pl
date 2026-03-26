@@ -28,7 +28,7 @@ my $result = $client->decodeToken(
     25,
     'token_enterprise_params',
     \%params,
-    (defined $timeout ? int($timeout) : +DeathByCaptcha::Client::DEFAULT_TIMEOUT)
+    (defined $timeout ? int($timeout) : +DeathByCaptcha::Client::DEFAULT_TOKEN_TIMEOUT)
 );
 
 if (!defined $result) {

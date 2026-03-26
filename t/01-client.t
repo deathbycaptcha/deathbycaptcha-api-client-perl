@@ -22,6 +22,11 @@ use DeathByCaptcha::Client;
         return $self->{upload_result};
     }
 
+    sub uploadToken {
+        my ($self, $type, $param_key, $params) = @_;
+        return $self->{upload_token_result};
+    }
+
     sub getCaptcha {
         my ($self, $id) = @_;
         if (ref $self->{captcha_queue} eq 'ARRAY' && @{$self->{captcha_queue}}) {
@@ -93,6 +98,41 @@ ok(!defined $client->decode('ignored.jpg', 1), 'decode returns undef when solved
 # decode: upload failure
 $client = Local::ClientMock->new(upload_result => undef);
 ok(!defined $client->decode('ignored.jpg', 1), 'decode returns undef when upload fails');
+
+# DEFAULT_TOKEN_TIMEOUT should be 120 (double the image default)
+is(DeathByCaptcha::Client::DEFAULT_TOKEN_TIMEOUT, 120, 'DEFAULT_TOKEN_TIMEOUT is 120 seconds');
+is(DeathByCaptcha::Client::DEFAULT_TIMEOUT, 60, 'DEFAULT_TIMEOUT is 60 seconds');
+
+# decodeToken: success path without waiting
+$client = Local::ClientMock->new(
+    upload_token_result => { captcha => 20, text => 'token-result', is_correct => 1 },
+);
+my $decoded_token = $client->decodeToken(4, 'token_params', { googlekey => 'k', pageurl => 'u' }, 1);
+is($decoded_token->{text}, 'token-result', 'decodeToken returns solved captcha when already resolved');
+
+# decodeToken: upload token failure
+$client = Local::ClientMock->new(upload_token_result => undef);
+ok(!defined $client->decodeToken(4, 'token_params', { googlekey => 'k', pageurl => 'u' }, 1),
+    'decodeToken returns undef when uploadToken fails');
+
+# decodeToken: timeout without solution
+$client = Local::ClientMock->new(
+    upload_token_result => { captcha => 30, text => undef },
+    captcha_result      => { captcha => 30, text => undef },
+);
+ok(!defined $client->decodeToken(4, 'token_params', { googlekey => 'k', pageurl => 'u' }, 1),
+    'decodeToken returns undef when timeout is exceeded without solution');
+
+# decodeToken: solved on second poll
+$client = Local::ClientMock->new(
+    upload_token_result => { captcha => 40, text => undef },
+    captcha_queue       => [
+        { captcha => 40, text => 'late-token' },
+    ],
+);
+my $late_token = $client->decodeToken(4, 'token_params', { googlekey => 'k', pageurl => 'u' }, 5);
+ok(defined $late_token && $late_token->{text} eq 'late-token',
+    'decodeToken returns captcha when solved on second poll');
 
 done_testing;
 

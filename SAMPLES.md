@@ -14,6 +14,19 @@ This document contains usage examples for scripts in `samples/`.
 - [Run: reCAPTCHA v2 Enterprise (HTTP)](#run-recaptcha-v2-enterprise-http)
 - [Run: Cloudflare Turnstile (HTTP)](#run-cloudflare-turnstile-http)
 - [Run: Amazon WAF (HTTP)](#run-amazon-waf-http)
+- [Run: GeeTest v3 (Socket)](#run-geetest-v3-socket)
+- [Run: GeeTest v4 (Socket)](#run-geetest-v4-socket)
+- [Run: Text CAPTCHA (HTTP)](#run-text-captcha-http)
+- [Run: Audio CAPTCHA (HTTP)](#run-audio-captcha-http)
+- [Run: Lemin (Socket)](#run-lemin-socket)
+- [Run: Capy (Socket)](#run-capy-socket)
+- [Run: Siara (Socket)](#run-siara-socket)
+- [Run: MTCaptcha (Socket)](#run-mtcaptcha-socket)
+- [Run: Cutcaptcha (Socket)](#run-cutcaptcha-socket)
+- [Run: Friendly Captcha (Socket)](#run-friendly-captcha-socket)
+- [Run: DataDome (Socket)](#run-datadome-socket)
+- [Run: Tencent (Socket)](#run-tencent-socket)
+- [Run: ATB (Socket)](#run-atb-socket)
 - [Known Test Settings by Type](#known-test-settings-by-type)
 - [Perl API Snippets](#perl-api-snippets)
 - [Notes](#notes)
@@ -29,6 +42,21 @@ Available sample assets:
 - `samples/recaptcha_enterprise_http.pl`
 - `samples/turnstile_http.pl`
 - `samples/amazon_waf_http.pl`
+- `samples/example.reCAPTCHA_Coordinates.pl`
+- `samples/example.reCAPTCHA_Image_Group.pl`
+- `samples/example.Geetest_v3.pl`
+- `samples/example.Geetest_v4.pl`
+- `samples/example.Textcaptcha.pl`
+- `samples/example.Audio.pl`
+- `samples/example.Lemin.pl`
+- `samples/example.Capy.pl`
+- `samples/example.Siara.pl`
+- `samples/example.Mtcaptcha.pl`
+- `samples/example.Cutcaptcha.pl`
+- `samples/example.Friendly.pl`
+- `samples/example.Datadome.pl`
+- `samples/example.Tencent.pl`
+- `samples/example.Atb.pl`
 - `samples/test.jpg`
 
 ## Prerequisites
@@ -168,19 +196,137 @@ perl samples/amazon_waf_http.pl "$DBC_USERNAME" "$DBC_PASSWORD" \
     '{"sitekey":"<AWS_WAF_KEY>","pageurl":"<PROTECTED_URL>","iv":"<IV>","context":"<CONTEXT>"}'
 ```
 
+## Run: GeeTest v3 (Socket)
+
+Edit `samples/example.Geetest_v3.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Geetest_v3.pl
+```
+
+## Run: GeeTest v4 (Socket)
+
+Edit `samples/example.Geetest_v4.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Geetest_v4.pl
+```
+
+## Run: Text CAPTCHA (HTTP)
+
+Edit `samples/example.Textcaptcha.pl` with your credentials and question text, then run:
+
+```bash
+perl samples/example.Textcaptcha.pl
+```
+
+## Run: Audio CAPTCHA (HTTP)
+
+Edit `samples/example.Audio.pl` with your credentials and the path to the audio file, then run:
+
+```bash
+perl samples/example.Audio.pl
+```
+
+## Run: Lemin (Socket)
+
+Edit `samples/example.Lemin.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Lemin.pl
+```
+
+## Run: Capy (Socket)
+
+Edit `samples/example.Capy.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Capy.pl
+```
+
+## Run: Siara (Socket)
+
+Edit `samples/example.Siara.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Siara.pl
+```
+
+## Run: MTCaptcha (Socket)
+
+Edit `samples/example.Mtcaptcha.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Mtcaptcha.pl
+```
+
+## Run: Cutcaptcha (Socket)
+
+Edit `samples/example.Cutcaptcha.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Cutcaptcha.pl
+```
+
+## Run: Friendly Captcha (Socket)
+
+Edit `samples/example.Friendly.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Friendly.pl
+```
+
+## Run: DataDome (Socket)
+
+Edit `samples/example.Datadome.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Datadome.pl
+```
+
+## Run: Tencent (Socket)
+
+Edit `samples/example.Tencent.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Tencent.pl
+```
+
+## Run: ATB (Socket)
+
+Edit `samples/example.Atb.pl` with your credentials and parameters, then run:
+
+```bash
+perl samples/example.Atb.pl
+```
+
 ## Known Test Settings by Type
 
 Use these settings as a starting point while testing the token samples:
 
-| Type | Sample | Settings used |
+| Type | Sample | Key parameters |
 |---|---|---|
+| `0` Standard Image | `samples/example.pl` | any valid CAPTCHA image |
+| `2` reCAPTCHA Coordinates | `samples/example.reCAPTCHA_Coordinates.pl` | CAPTCHA screenshot image |
+| `3` reCAPTCHA Image Group | `samples/example.reCAPTCHA_Image_Group.pl` | grid image, banner, banner_text |
 | `4` reCAPTCHA v2 | `samples/recaptcha_v2_http.pl` | `googlekey=6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-`, `pageurl=http://test.com/path` |
 | `5` reCAPTCHA v3 | `samples/recaptcha_v3_http.pl` | `googlekey=6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-`, `pageurl=http://test.com/path`, `action=login`, `min_score=0.3` |
-| `25` reCAPTCHA v2 Enterprise | `samples/recaptcha_enterprise_http.pl` | `googlekey=6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-`, `pageurl=http://test.com/path` |
+| `8` GeeTest v3 | `samples/example.Geetest_v3.pl` | `gt`, `challenge` (changes per reload), `pageurl` |
+| `9` GeeTest v4 | `samples/example.Geetest_v4.pl` | `captcha_id`, `pageurl` |
+| `11` Text CAPTCHA | `samples/example.Textcaptcha.pl` | `textcaptcha` (the question string) |
 | `12` Cloudflare Turnstile | `samples/turnstile_http.pl` | `sitekey=1x00000000000000000000AA`, `pageurl=https://demo.turnstile.cloudflare.com/` |
-| `16` Amazon WAF | `samples/amazon_waf_http.pl` | `sitekey=AQIDAHjcYu/GjX+QlghicBg4CQG345nUGDFTbNH1h5zmP4MHSgF4BObLIm50T/dCQ7XG`, `pageurl=https://efw47fpad9.execute-api.us-east-1.amazonaws.com/latest`, plus required dynamic `iv` and `context` |
-
-For Amazon WAF, `iv` and `context` must come from a live challenge page at request time; static values do not work.
+| `13` Audio | `samples/example.Audio.pl` | audio file path, `language=en` |
+| `14` Lemin | `samples/example.Lemin.pl` | `captchaid`, `pageurl` |
+| `15` Capy | `samples/example.Capy.pl` | `captchakey`, `api_server`, `pageurl` |
+| `16` Amazon WAF | `samples/amazon_waf_http.pl` | `sitekey`, `pageurl`, `iv`, `context` (dynamic) |
+| `17` Siara | `samples/example.Siara.pl` | `slideurlid`, `pageurl`, `useragent` |
+| `18` MTCaptcha | `samples/example.Mtcaptcha.pl` | `sitekey`, `pageurl` |
+| `19` Cutcaptcha | `samples/example.Cutcaptcha.pl` | `apikey`, `miserykey`, `pageurl` |
+| `20` Friendly Captcha | `samples/example.Friendly.pl` | `sitekey`, `pageurl` |
+| `21` DataDome | `samples/example.Datadome.pl` | `pageurl`, `captcha_url` |
+| `23` Tencent | `samples/example.Tencent.pl` | `appid`, `pageurl` |
+| `24` ATB | `samples/example.Atb.pl` | `appid`, `apiserver`, `pageurl` |
+| `25` reCAPTCHA v2 Enterprise | `samples/recaptcha_enterprise_http.pl` | `googlekey=6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-`, `pageurl=http://test.com/path` |
 
 ## Perl API Snippets
 

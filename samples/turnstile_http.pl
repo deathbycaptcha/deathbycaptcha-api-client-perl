@@ -27,7 +27,7 @@ my $result = $client->decodeToken(
     12,
     'turnstile_params',
     $params,
-    (defined $timeout ? int($timeout) : +DeathByCaptcha::Client::DEFAULT_TIMEOUT)
+    (defined $timeout ? int($timeout) : +DeathByCaptcha::Client::DEFAULT_TOKEN_TIMEOUT)
 );
 
 if (!defined $result) {
