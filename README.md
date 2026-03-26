@@ -25,6 +25,9 @@ Key features:
 Quick start example (HTTP):
 
 ```perl
+use FindBin qw($Bin);
+use lib "$Bin/";  # Adjust to where DeathByCaptcha/ is in your project
+
 use DeathByCaptcha::HttpClient;
 use DeathByCaptcha::Client;
 
@@ -33,6 +36,14 @@ my $captcha = $client->decode('path/to/captcha.jpg', +DeathByCaptcha::Client::DE
 if (defined $captcha) {
     print $captcha->{text}, "\n";
 }
+```
+
+If your script is in a different folder, update `use lib` so Perl can find `DeathByCaptcha/`. For example:
+
+```perl
+use FindBin qw($Bin);
+use lib "$Bin/../";
+# or (when running from repository root): use lib './';
 ```
 
 > **🚌 Transport options:** Use `HttpClient` for encrypted HTTPS communication — credentials and data travel over TLS. Use `SocketClient` for lower latency and higher throughput — it is faster but communicates over a plain TCP connection to `api.dbcapi.me` on ports `8123–8130`.
@@ -89,6 +100,19 @@ Or install modules manually:
 ```bash
 cpanm LWP::UserAgent LWP::Protocol::https HTTP::Request::Common HTTP::Status JSON IO::Socket MIME::Base64
 ```
+
+When running scripts from this repository (or another local checkout), add the local library path before importing modules:
+
+```perl
+use FindBin qw($Bin);
+use lib "$Bin/";      # if DeathByCaptcha/ is next to your script
+# use lib "$Bin/../"; # if your script is under samples/
+# use lib './';         # from repository root
+
+use DeathByCaptcha::HttpClient;
+```
+
+Choose the `use lib` path according to your folder layout so Perl can locate `DeathByCaptcha/`.
 
 <a id="how-to-use-dbc-api-clients"></a>
 ## 🚀 How to Use DBC API Clients
