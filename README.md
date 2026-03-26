@@ -852,6 +852,20 @@ Cloudflare Turnstile is a CAPTCHA alternative that protects pages without requir
 
 **Response:** The API returns a token string valid for one use with a 2-minute lifespan. Submit it via the `input[name="cf-turnstile-response"]` field (or `input[name="g-recaptcha-response"]` when reCAPTCHA compatibility mode is enabled), or pass it to the callback defined in `turnstile.render` / `data-callback`.
 
+---
+
+## CI and Quality
+
+| CI / Quality | Status |
+|---|---|
+| Unit Tests (Perl 5.38) | [![Unit Tests (Perl 5.38.5)](https://github.com/deathbycaptcha/deathbycaptcha-api-client-perl/actions/workflows/unit-tests-perl-5.38.5.yml/badge.svg?branch=master)](https://github.com/deathbycaptcha/deathbycaptcha-api-client-perl/actions/workflows/unit-tests-perl-5.38.5.yml) |
+| Unit Tests (Perl 5.40) | [![Unit Tests (Perl 5.40.3)](https://github.com/deathbycaptcha/deathbycaptcha-api-client-perl/actions/workflows/unit-tests-perl-5.40.3.yml/badge.svg?branch=master)](https://github.com/deathbycaptcha/deathbycaptcha-api-client-perl/actions/workflows/unit-tests-perl-5.40.3.yml) |
+| Unit Tests (Perl 5.42) | [![Unit Tests (Perl 5.42.1)](https://github.com/deathbycaptcha/deathbycaptcha-api-client-perl/actions/workflows/unit-tests-perl-5.42.1.yml/badge.svg?branch=master)](https://github.com/deathbycaptcha/deathbycaptcha-api-client-perl/actions/workflows/unit-tests-perl-5.42.1.yml) |
+| Integration Tests (Perl 5.42) | [![Integration Tests (Perl 5.42.1)](https://github.com/deathbycaptcha/deathbycaptcha-api-client-perl/actions/workflows/integration-perl-5.42.1.yml/badge.svg?branch=master)](https://github.com/deathbycaptcha/deathbycaptcha-api-client-perl/actions/workflows/integration-perl-5.42.1.yml) |
+| Coverage (Perl 5.42) | [![Coverage %](https://raw.githubusercontent.com/deathbycaptcha/deathbycaptcha-api-client-perl/gh-pages/badges/coverage.svg)](https://github.com/deathbycaptcha/deathbycaptcha-api-client-perl/actions/workflows/coverage-badge-perl-5.42.1.yml) |
+
+---
+
 ## ⚖️ Responsible Use
 
 See [Responsible Use Agreement](RESPONSIBLE_USE.md).
