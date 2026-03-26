@@ -14,7 +14,7 @@
 
 ## 📖 Introduction
 
-The [DeathByCaptcha](https://deathbycaptcha.com) Perl client is the official library for the DeathByCaptcha **captcha solving service**. It provides a simple, well-documented interface for integrating CAPTCHA solving into automation workflows — a particularly common need when you use it as a **captcha solver for web scraping**, where CAPTCHAs block access to the pages you need to extract data from. It supports both the HTTPS API (encrypted transport — recommended when security is a priority) and the socket-based API (faster and lower latency, recommended for high-throughput production workloads). Requires Perl 5.20+.
+The [DeathByCaptcha](https://deathbycaptcha.com) Perl client is the official library for the DeathByCaptcha **captcha solving service**, designed for teams that need a reliable recaptcha solver API in automation and scraping pipelines. It provides a simple, well-documented interface for integrating image, audio, and token-based CAPTCHA workflows, and it helps evaluate captcha solving API pricing in real projects by giving a consistent implementation across HTTPS and socket transports. It supports both the HTTPS API (encrypted transport — recommended when security is a priority) and the socket-based API (faster and lower latency, recommended for high-throughput production workloads). Requires Perl 5.20+.
 
 Key features:
 

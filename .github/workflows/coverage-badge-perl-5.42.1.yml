@@ -31,8 +31,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cpanm --notest --installdeps .
-          cpanm --notest Devel::Cover
+          cpanm --notest --mirror https://cpan.metacpan.org/ --installdeps .
+          cpanm --notest --mirror https://cpan.metacpan.org/ Devel::Cover
 
       - name: Run unit tests with coverage
         run: |

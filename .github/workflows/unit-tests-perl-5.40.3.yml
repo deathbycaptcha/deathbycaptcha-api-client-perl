@@ -25,7 +25,7 @@ jobs:
           fi
 
       - name: Install dependencies
-        run: cpanm --notest --installdeps .
+        run: cpanm --notest --mirror https://cpan.metacpan.org/ --installdeps .
 
       - name: Run unit tests
         run: prove -l t/0[0-4]-*.t

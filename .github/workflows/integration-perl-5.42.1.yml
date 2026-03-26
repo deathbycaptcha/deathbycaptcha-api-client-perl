@@ -55,7 +55,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.secrets.outputs.available == 'true'
-        run: cpanm --notest --installdeps .
+        run: cpanm --notest --mirror https://cpan.metacpan.org/ --installdeps .
 
       - name: Run integration test
         if: steps.secrets.outputs.available == 'true'
