@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp qw(croak);
 
-use constant CLIENT_VERSION => '4.7.0';
+use constant CLIENT_VERSION => '4.7.1';
 our $VERSION = +CLIENT_VERSION;
 
 use constant API_VERSION => 'DBC/Perl v' . +CLIENT_VERSION;
